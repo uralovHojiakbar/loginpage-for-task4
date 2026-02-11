@@ -1,0 +1,229 @@
+@using loginpage.Models
+@model IEnumerable<User>
+
+@{
+    Layout = null;
+
+    string Humanize(DateTime? dt)
+    {
+        if (dt == null) return "Never";
+        var span = DateTime.UtcNow - dt.Value;
+        if (span.TotalSeconds < 60) return "less than a minute ago";
+        if (span.TotalMinutes < 60) return $"{(int)span.TotalMinutes} minutes ago";
+        if (span.TotalHours < 24) return $"{(int)span.TotalHours} hours ago";
+        return $"{(int)span.TotalDays} days ago";
+    }
+
+    string StatusText(UserStatus s) =>
+        s == UserStatus.Active ? "Active" :
+        s == UserStatus.Blocked ? "Blocked" : "Unverified";
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin panel</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f6f7fb;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .subtext {
+            font-size: .85rem;
+            color: #6c757d;
+        }
+
+        .toolbar .btn {
+            margin-right: .5rem;
+        }
+
+            .toolbar .btn:last-child {
+                margin-right: 0;
+            }
+
+        .icon-btn {
+            width: 44px;
+        }
+
+        .muted {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Standard navigation header -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-semibold" href="/admin/panel">Admin</a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <span class="small text-muted">Signed in as @User.Identity?.Name</span>
+                <form method="post" action="/admin/logout" class="m-0">
+                    <button class="btn btn-outline-secondary btn-sm" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <!-- Toolbar -->
+            <div class="toolbar d-flex align-items-center">
+                <!-- Block selected -->
+                <button id="btnBlock" class="btn btn-outline-primary btn-sm icon-btn" type="button" title="Block selected" disabled>
+                    <i class="bi bi-lock-fill"></i>
+                </button>
+
+                <!-- Unblock selected -->
+                <button id="btnUnblock" class="btn btn-outline-primary btn-sm icon-btn" type="button" title="Unblock selected" disabled>
+                    <i class="bi bi-unlock-fill"></i>
+                </button>
+
+                <!-- Delete selected -->
+                <button id="btnDelete" class="btn btn-outline-danger btn-sm icon-btn" type="button" title="Delete selected" disabled>
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+
+                <!-- Delete unverified (global) -->
+                <form method="post" action="/admin/delete-unverified" class="d-inline m-0 ms-2"
+                      onsubmit="return confirm('Delete ALL unverified users?')">
+                    <button class="btn btn-danger btn-sm" type="submit">Delete unverified</button>
+                </form>
+
+                <span id="selInfo" class="small ms-3 muted">0 selected</span>
+            </div>
+
+            <!-- Filter -->
+            <form method="get" action="/admin/panel" class="d-flex gap-2">
+                <input name="q" class="form-control form-control-sm" style="width: 260px" placeholder="Filter"
+                       value="@Context.Request.Query["q"]" />
+                <button class="btn btn-primary btn-sm" type="submit">Search</button>
+            </form>
+        </div>
+
+        <!-- hidden bulk forms -->
+        <form id="bulkBlockForm" method="post" action="/admin/bulk/block" class="d-none"></form>
+        <form id="bulkUnblockForm" method="post" action="/admin/bulk/unblock" class="d-none"></form>
+        <form id="bulkDeleteForm" method="post" action="/admin/bulk/delete" class="d-none"></form>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 46px;" class="text-center">
+                                <input id="chkAll" type="checkbox" class="form-check-input" title="Select all">
+                            </th>
+                            <th style="width: 30%">Name</th>
+                            <th style="width: 30%">Email</th>
+                            <th style="width: 16%">Status</th>
+                            <th style="width: 20%">Last seen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model)
+                        {
+                            <tr data-user-id="@u.Id" data-status="@u.Status">
+                                <td class="text-center">
+                                    <input type="checkbox" class="form-check-input row-check" value="@u.Id" />
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">@u.Name</div>
+                                    <div class="subtext">@u.Id</div>
+                                </td>
+                                <td>@u.Email</td>
+                                <td>
+                                    @if (u.Status == UserStatus.Active)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else if (u.Status == UserStatus.Blocked)
+                                    {
+                                        <span class="badge bg-danger">Blocked</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Unverified</span>
+                                    }
+                                </td>
+                                <td>@Humanize(u.LastLoginAt)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            const chkAll = document.getElementById('chkAll');
+            const checks = () => Array.from(document.querySelectorAll('.row-check'));
+            const selectedIds = () => checks().filter(c => c.checked).map(c => c.value);
+
+            const btnBlock = document.getElementById('btnBlock');
+            const btnUnblock = document.getElementById('btnUnblock');
+            const btnDelete = document.getElementById('btnDelete');
+            const selInfo = document.getElementById('selInfo');
+
+            const bulkBlockForm = document.getElementById('bulkBlockForm');
+            const bulkUnblockForm = document.getElementById('bulkUnblockForm');
+            const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+            function syncToolbar() {
+                const ids = selectedIds();
+                const any = ids.length > 0;
+                btnBlock.disabled = !any;
+                btnUnblock.disabled = !any;
+                btnDelete.disabled = !any;
+
+                selInfo.textContent = `${ids.length} selected`;
+
+                // tri-state checkbox UI
+                const all = checks().length;
+                const sel = ids.length;
+                chkAll.indeterminate = sel > 0 && sel < all;
+                chkAll.checked = sel > 0 && sel === all;
+            }
+
+            function setAll(v) {
+                checks().forEach(c => c.checked = v);
+                syncToolbar();
+            }
+
+            function submitBulk(formEl, ids, confirmText) {
+                if (ids.length === 0) return;
+                if (confirmText && !confirm(confirmText)) return;
+
+                formEl.innerHTML = '';
+                ids.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ids';
+                    input.value = id;
+                    formEl.appendChild(input);
+                });
+                formEl.submit();
+            }
+
+            chkAll.addEventListener('change', () => setAll(chkAll.checked));
+            checks().forEach(c => c.addEventListener('change', syncToolbar));
+
+            btnBlock.addEventListener('click', () => submitBulk(bulkBlockForm, selectedIds(), 'Block selected users?'));
+            btnUnblock.addEventListener('click', () => submitBulk(bulkUnblockForm, selectedIds(), 'Unblock selected users?'));
+            btnDelete.addEventListener('click', () => submitBulk(bulkDeleteForm, selectedIds(), 'Delete selected users? This cannot be undone.'));
+
+            syncToolbar();
+        })();
+    </script>
+</body>
+</html>

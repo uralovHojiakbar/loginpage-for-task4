@@ -1,0 +1,4 @@
+/* Business-like, clean look. No animations. */
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+.table td, .table th { vertical-align: middle; }
+#status .alert { margin-bottom: 0.75rem; }
