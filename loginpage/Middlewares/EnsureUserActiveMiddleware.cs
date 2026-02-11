@@ -18,7 +18,7 @@ namespace loginpage.Middlewares
         {
             var path = context.Request.Path.Value ?? "";
 
-            // Excluded endpoints (registration/login/verify and static assets)
+         
             var excludedStarts = new[] { "/auth/login", "/auth/register", "/auth/verify", "/favicon.ico", "/css/", "/js/", "/lib/", "/_framework" };
             if (excludedStarts.Any(s => path.StartsWith(s, StringComparison.OrdinalIgnoreCase)))
             {
@@ -28,14 +28,14 @@ namespace loginpage.Middlewares
 
             if (context.User?.Identity?.IsAuthenticated == true)
             {
-                // get user id from claim
+               
                 var idClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (Guid.TryParse(idClaim, out var userId))
                 {
                     var user = await users.GetByIdAsync(userId);
                     if (user == null || user.Status == loginpage.Models.UserStatus.Blocked)
                     {
-                        // nota bene: if blocked or deleted, sign out and redirect to login
+                        
                         await context.SignOutAsync();
                         context.Response.Redirect("/auth/login.html");
                         return;

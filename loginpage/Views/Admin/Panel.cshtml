@@ -61,7 +61,7 @@
     </style>
 </head>
 <body>
-    <!-- Standard navigation header -->
+  
     <nav class="navbar navbar-expand-lg bg-white border-bottom">
         <div class="container-fluid">
             <a class="navbar-brand fw-semibold" href="/admin/panel">Admin</a>
@@ -76,24 +76,24 @@
 
     <main class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <!-- Toolbar -->
+         
             <div class="toolbar d-flex align-items-center">
-                <!-- Block selected -->
+         
                 <button id="btnBlock" class="btn btn-outline-primary btn-sm icon-btn" type="button" title="Block selected" disabled>
                     <i class="bi bi-lock-fill"></i>
                 </button>
 
-                <!-- Unblock selected -->
+         
                 <button id="btnUnblock" class="btn btn-outline-primary btn-sm icon-btn" type="button" title="Unblock selected" disabled>
                     <i class="bi bi-unlock-fill"></i>
                 </button>
 
-                <!-- Delete selected -->
+           
                 <button id="btnDelete" class="btn btn-outline-danger btn-sm icon-btn" type="button" title="Delete selected" disabled>
                     <i class="bi bi-trash-fill"></i>
                 </button>
 
-                <!-- Delete unverified (global) -->
+             
                 <form method="post" action="/admin/delete-unverified" class="d-inline m-0 ms-2"
                       onsubmit="return confirm('Delete ALL unverified users?')">
                     <button class="btn btn-danger btn-sm" type="submit">Delete unverified</button>
@@ -102,7 +102,7 @@
                 <span id="selInfo" class="small ms-3 muted">0 selected</span>
             </div>
 
-            <!-- Filter -->
+     
             <form method="get" action="/admin/panel" class="d-flex gap-2">
                 <input name="q" class="form-control form-control-sm" style="width: 260px" placeholder="Filter"
                        value="@Context.Request.Query["q"]" />
@@ -110,7 +110,7 @@
             </form>
         </div>
 
-        <!-- hidden bulk forms -->
+   
         <form id="bulkBlockForm" method="post" action="/admin/bulk/block" class="d-none"></form>
         <form id="bulkUnblockForm" method="post" action="/admin/bulk/unblock" class="d-none"></form>
         <form id="bulkDeleteForm" method="post" action="/admin/bulk/delete" class="d-none"></form>
@@ -188,7 +188,7 @@
 
                 selInfo.textContent = `${ids.length} selected`;
 
-                // tri-state checkbox UI
+               
                 const all = checks().length;
                 const sel = ids.length;
                 chkAll.indeterminate = sel > 0 && sel < all;

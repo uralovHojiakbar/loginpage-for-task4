@@ -43,7 +43,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 
-// ✅ migrations
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -65,7 +65,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapGet("/", () => Results.Redirect("/auth/register.html"));
 
-// Agar middleware fayli bo'lmasa, vaqtincha comment qiling
 app.UseMiddleware<EnsureUserActiveMiddleware>();
 
 app.MapRazorPages();

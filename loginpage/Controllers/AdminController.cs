@@ -19,7 +19,7 @@ namespace loginpage.Controllers
             _users = users;
         }
 
-        // GET /admin/panel
+ 
         [HttpGet("panel")]
         public async Task<IActionResult> Panel([FromQuery] string? q)
         {
@@ -37,7 +37,7 @@ namespace loginpage.Controllers
             return View("Panel", items);
         }
 
-        // POST /admin/bulk/block
+
         [HttpPost("bulk/block")]
         public async Task<IActionResult> BulkBlock([FromForm] Guid[] ids)
         {
@@ -47,7 +47,6 @@ namespace loginpage.Controllers
             return RedirectToAction(nameof(Panel));
         }
 
-        // POST /admin/bulk/unblock
         [HttpPost("bulk/unblock")]
         public async Task<IActionResult> BulkUnblock([FromForm] Guid[] ids)
         {
@@ -57,7 +56,6 @@ namespace loginpage.Controllers
             return RedirectToAction(nameof(Panel));
         }
 
-        // POST /admin/bulk/delete
         [HttpPost("bulk/delete")]
         public async Task<IActionResult> BulkDelete([FromForm] Guid[] ids)
         {
@@ -67,7 +65,7 @@ namespace loginpage.Controllers
             return RedirectToAction(nameof(Panel));
         }
 
-        // POST /admin/delete-unverified
+ 
         [HttpPost("delete-unverified")]
         public async Task<IActionResult> DeleteUnverified()
         {
@@ -75,7 +73,7 @@ namespace loginpage.Controllers
             return RedirectToAction(nameof(Panel));
         }
 
-        // POST /admin/logout
+       
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

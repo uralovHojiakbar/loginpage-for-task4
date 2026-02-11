@@ -7,9 +7,7 @@ using loginpage.Data;
 
 namespace loginpage
 {
-    // important: used by EF tools at design-time to create the DbContext
-    // note: read both appsettings.json and environment-specific file so design-time works
-    // nota bene: try multiple keys for the connection string to be tolerant to config names
+
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         public AppDbContext CreateDbContext(string[] args)
@@ -24,7 +22,7 @@ namespace loginpage
 
             var configuration = builder.Build();
 
-            // try common keys in order: DefaultConnection, Connection, ConnectionStrings:Connection
+
             var conn = configuration.GetConnectionString("DefaultConnection")
                        ?? configuration.GetConnectionString("Connection")
                        ?? configuration["ConnectionStrings:Connection"]

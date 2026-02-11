@@ -33,7 +33,7 @@ namespace loginpage.Services
         {
             var norm = (email ?? "").Trim().ToLowerInvariant();
 
-            // ✅ eng yangi userni olamiz (duplicate bo'lsa ham)
+    
             return await _db.Users
                 .Where(u => u.Email == norm)
                 .OrderByDescending(u => u.RegisteredAt)

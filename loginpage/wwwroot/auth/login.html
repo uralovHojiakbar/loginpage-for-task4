@@ -56,7 +56,7 @@
         try {
           const res = await apiPost('/auth/login', new URLSearchParams({ email, password }), { formUrlEncoded: true });
           showStatus(res?.message ?? 'Signed in', 'success');
-          // Redirect to protected admin panel UI
+   
           setTimeout(() => location.href = '/admin/panel', 500);
         } catch (err) {
             showStatus(err?.error ?? err?.message ?? 'Login failed', 'danger');

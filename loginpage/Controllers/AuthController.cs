@@ -93,7 +93,7 @@ namespace loginpage.Controllers
 
             var verifyUrl = Url.Action("Verify", "Auth", new { id = user.Id }, Request.Scheme);
 
-            // async send (email kelmasa ham register yiqilmaydi)
+           
             _ = Task.Run(async () =>
             {
                 try
@@ -104,7 +104,7 @@ namespace loginpage.Controllers
                 catch { }
             });
 
-            // ✅ HAR DOIM verifyUrl qaytadi (SMTP ishlamasa ham)
+           
             return Ok(new
             {
                 message = "Registered. Verification email sent asynchronously.",

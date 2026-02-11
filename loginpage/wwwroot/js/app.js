@@ -1,24 +1,19 @@
-// Shared helper functions used by all pages.
-// important: uses Fetch with credentials to send cookies to the server.
-// note: small helper functions include important/note/nota bene comments.
-// nota bene: do not use window.alerts for status messages, use UI status areas.
+
 
 (function(global){
-  // important: returns unique id string
+
   function getUniqIdValue() {
-    // note: GUID-like id; guaranteed unique for client-side element ids
-    // nota bene: you can replace with other strategies if needed
+ 
     return 'id-' + cryptoRandomHex(16);
   }
 
   function cryptoRandomHex(bytes) {
-    // small helper: generate secure hex string
+  
     const arr = new Uint8Array(bytes);
     crypto.getRandomValues(arr);
     return Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('');
   }
 
-  // show status messages in a provided container element or default to element id 'status'
   function showStatus(text, type='info', container) {
     const el = container || document.getElementById('status');
     if (!el) return;
@@ -31,10 +26,9 @@
     return 'secondary';
   }
 
-  // simple escape
+
   function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-  // API helpers
   async function apiGet(path) {
     const res = await fetch(path, { credentials: 'include' });
     if (!res.ok) {
@@ -44,7 +38,6 @@
     return await safeParse(res);
   }
 
-  // options: { json:true } -> send JSON body; { formUrlEncoded:true } -> send urlencoded body
   async function apiPost(path, data, options={}) {
     const headers = {};
     let body = null;
@@ -55,7 +48,7 @@
       headers['Content-Type'] = 'application/json';
       body = JSON.stringify(data || {});
     } else {
-      // default to form urlencoded when data is URLSearchParams
+  
       headers['Content-Type'] = 'application/x-www-form-urlencoded';
       body = data instanceof URLSearchParams ? data.toString() : JSON.stringify(data);
     }
@@ -79,14 +72,10 @@
     try { return txt ? JSON.parse(txt) : null; } catch { return txt || null; }
   }
 
-  // Modal-based confirmation (replaces window.confirm)
-  // important: exposes showConfirm(message, title) -> Promise<boolean>
-  // note: the page may include a #confirmModal element (recommended). If absent, one is created.
   function ensureConfirmModal() {
     let modalEl = document.getElementById('confirmModal');
     if (modalEl) return modalEl;
 
-    // create modal markup dynamically if not present
     modalEl = document.createElement('div');
     modalEl.innerHTML = `
       <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
@@ -138,7 +127,7 @@
     });
   }
 
-  // Expose to global
+
   global.getUniqIdValue = getUniqIdValue;
   global.apiGet = apiGet;
   global.apiPost = apiPost;
